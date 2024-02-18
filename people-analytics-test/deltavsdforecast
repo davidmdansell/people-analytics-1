@@ -1,0 +1,40 @@
+
+
+# Load the Excel file
+book3_path = '/Users/davidansell/Documents/GitHub/people-analytics-1/people-analytics-test/Book3.xlsx'
+book3_data = pd.read_excel(book3_path)
+
+# Display the first few rows of the dataframe to understand its structure
+book3_data.head()
+
+# Summary of key figures
+summary = book3_data.agg({
+    'hiring demand plan': 'sum',
+    'Committed hires': 'sum',
+    'Hires to be made': 'sum',
+    'hiring forecast best guess': 'sum',
+    'delta demand vs forecast': 'sum'
+}).reset_index()
+
+summary.columns = ['Metric', 'Total']
+summary
+
+# Filtering out aggregate rows (e.g., EUROPE, ASG) to focus on country-level data for visualization
+country_data = book3_data[book3_data['Unnamed: 0'].apply(lambda x: x not in ['EUROPE', 'ASG'])]
+
+# Visualizing hiring demand and forecast by country
+plt.figure(figsize=(14, 8))
+bar_width = 0.35
+index = range(len(country_data))
+
+plt.bar(index, country_data['hiring demand plan'], bar_width, label='Hiring Demand Plan')
+plt.bar([i+bar_width for i in index], country_data['hiring forecast best guess'], bar_width, label='Hiring Forecast Best Guess')
+
+plt.xlabel('Country')
+plt.ylabel('Count')
+plt.title('Hiring Demand Plan vs. Forecast Best Guess by Country')
+plt.xticks([i + bar_width / 2 for i in index], country_data['Unnamed: 0'], rotation=45)
+plt.legend()
+plt.tight_layout()
+
+plt.show()
