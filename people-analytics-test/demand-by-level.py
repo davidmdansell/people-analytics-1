@@ -46,7 +46,6 @@ def plot_monthly_demand_by_region(region, data):
     plt.ylabel('Hiring Demand')
     plt.legend(title='Country', bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
-    plt.show()
 
 # Get a list of unique regions to plot for each
 unique_regions = monthly_data['region'].unique()
@@ -54,4 +53,34 @@ unique_regions = monthly_data['region'].unique()
 # Plotting for the first region as an example
 plot_monthly_demand_by_region(unique_regions[0], monthly_data)
 
+# Filtering the original data for the first region
+region_specific_data = data[data['region'] == unique_regions[0]]
+
+# Aggregating hiring demand by level
+demand_by_level = region_specific_data.groupby(['level'])[monthly_columns].sum().reset_index()
+
+# Aggregating hiring demand by talent community
+demand_by_community = region_specific_data.groupby(['talent community'])[monthly_columns].sum().reset_index()
+
+demand_by_level.head(), demand_by_community.head()
+
+# Function to plot hiring demand by level
+def plot_demand_by_level(data):
+    plt.figure(figsize=(14, 6))
+    bottom = [0] * len(monthly_columns)  # Initialize bottom for stacked bar chart
+    
+    # Plotting each level
+    for index, row in data.iterrows():
+        plt.bar(monthly_columns, row[monthly_columns], bottom=bottom, label=row['level'])
+        bottom = [bottom[i] + row[monthly_columns][i] for i in range(len(monthly_columns))]
+    
+    plt.title(f'Hiring Demand by Level in {unique_regions[0]}')
+    plt.xticks(rotation=45)
+    plt.ylabel('Hiring Demand')
+    plt.legend(title='Level', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.show()
+
+# Plotting hiring demand by level
+plot_demand_by_level(demand_by_level)
 
